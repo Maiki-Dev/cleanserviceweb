@@ -1,7 +1,6 @@
 generator client {
-    provider = "prisma-client-js"
+    provider      = "prisma-client-js"
     binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
-    output = "/home/ubuntu/cleaning_service_app/app/node_modules/.prisma/client"
 }
 
 datasource db {
@@ -10,141 +9,141 @@ datasource db {
 }
 
 enum UserRole {
-  ADMIN
-  CUSTOMER  
-  CLEANER
+    ADMIN
+    CUSTOMER
+    CLEANER
 }
 
 enum ServiceType {
-  HOME_CLEANING
-  OFFICE_CLEANING
+    HOME_CLEANING
+    OFFICE_CLEANING
 }
 
 enum BookingStatus {
-  PENDING
-  CONFIRMED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
+    PENDING
+    CONFIRMED
+    IN_PROGRESS
+    COMPLETED
+    CANCELLED
 }
 
 enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
+    PENDING
+    PAID
+    FAILED
+    REFUNDED
 }
 
 enum PaymentMethod {
-  QPAY
-  APPLE_PAY
+    QPAY
+    APPLE_PAY
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String?
+    access_token      String?
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+    @@unique([provider, providerAccountId])
 }
 
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  fullName      String?
-  phone         String?
-  role          UserRole  @default(CUSTOMER)
-  address       String?
-  isActive      Boolean   @default(true)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  
-  accounts      Account[]
-  sessions      Session[]
-  bookings      Booking[] @relation("CustomerBookings")
-  assignedBookings Booking[] @relation("CleanerBookings")
-  payments      Payment[]
+    id            String    @id @default(cuid())
+    name          String?
+    email         String    @unique
+    emailVerified DateTime?
+    image         String?
+    password      String?
+    fullName      String?
+    phone         String?
+    role          UserRole  @default(CUSTOMER)
+    address       String?
+    isActive      Boolean   @default(true)
+    createdAt     DateTime  @default(now())
+    updatedAt     DateTime  @updatedAt
+
+    accounts         Account[]
+    sessions         Session[]
+    bookings         Booking[] @relation("CustomerBookings")
+    assignedBookings Booking[] @relation("CleanerBookings")
+    payments         Payment[]
 }
 
 model Service {
-  id          String      @id @default(cuid())
-  name        String
-  nameEn      String
-  description String
-  type        ServiceType
-  basePrice   Float
-  duration    Int         // in minutes
-  isActive    Boolean     @default(true)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  bookings    Booking[]
+    id          String      @id @default(cuid())
+    name        String
+    nameEn      String
+    description String
+    type        ServiceType
+    basePrice   Float
+    duration    Int // in minutes
+    isActive    Boolean     @default(true)
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+
+    bookings Booking[]
 }
 
 model Booking {
-  id          String        @id @default(cuid())
-  customerId  String
-  cleanerId   String?
-  serviceId   String
-  scheduledAt DateTime
-  duration    Int           // in minutes
-  totalPrice  Float
-  address     String
-  specialInstructions String?
-  status      BookingStatus @default(PENDING)
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  
-  customer    User          @relation("CustomerBookings", fields: [customerId], references: [id])
-  cleaner     User?         @relation("CleanerBookings", fields: [cleanerId], references: [id])
-  service     Service       @relation(fields: [serviceId], references: [id])
-  payments    Payment[]
+    id                  String        @id @default(cuid())
+    customerId          String
+    cleanerId           String?
+    serviceId           String
+    scheduledAt         DateTime
+    duration            Int // in minutes
+    totalPrice          Float
+    address             String
+    specialInstructions String?
+    status              BookingStatus @default(PENDING)
+    createdAt           DateTime      @default(now())
+    updatedAt           DateTime      @updatedAt
+
+    customer User      @relation("CustomerBookings", fields: [customerId], references: [id])
+    cleaner  User?     @relation("CleanerBookings", fields: [cleanerId], references: [id])
+    service  Service   @relation(fields: [serviceId], references: [id])
+    payments Payment[]
 }
 
 model Payment {
-  id            String        @id @default(cuid())
-  bookingId     String
-  userId        String
-  amount        Float
-  method        PaymentMethod
-  status        PaymentStatus @default(PENDING)
-  transactionId String?       @unique
-  qpayInvoiceId String?
-  metadata      Json?
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  
-  booking       Booking       @relation(fields: [bookingId], references: [id])
-  user          User          @relation(fields: [userId], references: [id])
+    id            String        @id @default(cuid())
+    bookingId     String
+    userId        String
+    amount        Float
+    method        PaymentMethod
+    status        PaymentStatus @default(PENDING)
+    transactionId String?       @unique
+    qpayInvoiceId String?
+    metadata      Json?
+    createdAt     DateTime      @default(now())
+    updatedAt     DateTime      @updatedAt
+
+    booking Booking @relation(fields: [bookingId], references: [id])
+    user    User    @relation(fields: [userId], references: [id])
 }
 
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+    identifier String
+    token      String   @unique
+    expires    DateTime
 
-  @@unique([identifier, token])
+    @@unique([identifier, token])
 }
